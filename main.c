@@ -51,7 +51,7 @@ int main(void) {
   P.lapC = 0;
   P.is_paused = false;
   strcpy(P.input, "");
-  P.prompt = "Please input your pomodoro loop";
+  P.prompt = "How Many Laps?";
 
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pomodoro Timer");
@@ -119,14 +119,22 @@ void get_user_input() {
 
   BeginDrawing();
   ClearBackground(BLACK);
-  GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x6B83FF);
+  GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x000033);
   GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
-  GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
+  GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xCC66FFFF);
+  GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, 0x996633FF);
 
-  GuiGetStyle(DEFAULT, BACKGROUND_COLOR);
+  GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, 0x996633FF);
+  GuiSetStyle(TEXTBOX, BASE_COLOR_NORMAL, 0x1A1A1AFF);
+  GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, 0xFFFFFFFF);
+  GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, 0x6B83FFFF);
+  GuiSetStyle(TEXTBOX, BASE_COLOR_FOCUSED, 0x2A2A2AFF);
+  GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, 0xFFFFFFFF);
+  GuiSetStyle(TEXTBOX, BORDER_WIDTH, 2);
+  GuiSetStyle(TEXTBOX, TEXT_PADDING, 5);
 
-  Rectangle bounds = {(GetScreenWidth() / 2.0f) - (255 / 2),
-                      GetScreenHeight() * 0.45f, 255, 255};
+  Rectangle bounds = {(GetScreenWidth() / 2.0f) - (400 / 2),
+                      GetScreenHeight() * 0.4f, 400, 300};
 
   int result = GuiTextInputBox(bounds, "Input", P.prompt, "Ok;Cancel", P.input,
                                255, NULL);
@@ -186,7 +194,7 @@ void pomodoro() {
   }
 
   BeginDrawing();
-  ClearBackground(DARKGRAY);
+  ClearBackground(BLACK);
   GuiGetStyle(DEFAULT, BACKGROUND_COLOR);
 
   GuiToggle((Rectangle){(GetScreenWidth() / 2.0f) - 25, GetScreenHeight() * 0.8,
