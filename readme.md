@@ -16,7 +16,7 @@ just build
 gcc main.c \
     -L {{ray_lib_path}}/lib \
     -lraylib -lm -lpthread -ldl -lrt \
-    -o main
+    -o main.out
 ```
 Note: Since raygui is meant to be used as a single header file(STB style library),
 we only need to link raylib and then in our `main.c`
