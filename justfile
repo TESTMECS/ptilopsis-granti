@@ -11,7 +11,7 @@ build:
 	gcc main.c \
 		-L {{ray_lib_path}}/lib \
 		-lraylib -lm -lpthread -ldl -lrt \
-		-o main
+		-o main.out
 
 commit msg:
 	git add . && git commit -m "{{msg}}"
