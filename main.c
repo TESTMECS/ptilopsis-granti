@@ -76,7 +76,7 @@ int main(void) {
     }
     case 2: {
       BeginDrawing();
-      ClearBackground(DARKBLUE);
+      ClearBackground(BLACK);
       DrawText("Congrats", (GetScreenWidth() / 1.5f) - 10,
                GetScreenHeight() * 0.8f, 50, RED);
       EndDrawing();
@@ -118,7 +118,11 @@ void get_user_input() {
   static int *biggest_time = NULL;
 
   BeginDrawing();
-  ClearBackground(DARKGRAY);
+  ClearBackground(BLACK);
+  GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x6B83FF);
+  GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
+  GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
+
   GuiGetStyle(DEFAULT, BACKGROUND_COLOR);
 
   Rectangle bounds = {(GetScreenWidth() / 2.0f) - (255 / 2),
