@@ -1,0 +1,16 @@
+Date-Format "YYYY-MM-DD"
+Project "ptilopsis-granti"
+Key """
+- < Task Todo >
++ < Task Done Today >
+~ < Task ignored for now >
+! < Task started but not finished >
+""" 
+Date "2026-03-10"
+Task-List """
+	- Test with other timing inputs
+	- Allow bypassing of input section with CLI args.
+	- Add in Themes using -D... flags for different colors.
+"""
+
+
