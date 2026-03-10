@@ -310,9 +310,9 @@ void get_user_input() {
 }
 
 void pomodoro() {
-  static char icon[16] = "#132#";
+  static char icon[16] = PLAY_ICON;
   static double last_time = 0;
-
+  //! Initialize the raygui
   if (P.loopC == 0 && P.lapC == 0 && P.countdown == 0) {
     P.countdown = P.peice;
     last_time = GetTime();
@@ -332,71 +332,88 @@ void pomodoro() {
                         50, 50},
             icon, &P.is_paused);
 
-  if (P.is_paused) {
-    strcpy(icon, PAUSE_ICON); //! @see Pause_Icon
-  } else {
-    strcpy(icon, PLAY_ICON); //! @see Play_Icon
-    if (P.countdown >= 0) {
-      switch (P.pomodoro_state) {
-      case POMO_RUNNING: {
-        DrawText(TextFormat("Lap %i/%i, Peice %i/4", P.loopC + 1, P.laps,
-                            P.lapC + 1),
-                 (GetScreenWidth() / 2.0f) - 150, GetScreenHeight() * 0.3f, 30,
-                 RED);
-        DrawText(
-            TextFormat("%02d:%02d left...", P.countdown / 60, P.countdown % 60),
-            (GetScreenWidth() / 2.0f) - 100, GetScreenHeight() * 0.5f, 60,
-            ORANGE);
-        break;
-      }
-      case POMO_SHORT_REST: {
-        DrawText("Start small rest...", (GetScreenWidth() / 2.0f) - 50,
-                 GetScreenHeight() * 0.3f, 30, RED);
-        DrawText(
-            TextFormat("%02d:%02d left...", P.countdown / 60, P.countdown % 60),
-            (GetScreenWidth() / 2.0f) - 100, GetScreenHeight() * 0.5f, 60,
-            ORANGE);
-        break;
-      }
-      case POMO_LONG_REST: {
-        DrawText("Start long rest...", (GetScreenWidth() / 2.0f) - 50,
-                 GetScreenHeight() * 0.3f, 30, RED);
-        DrawText(
-            TextFormat("%02d:%02d left...", P.countdown / 60, P.countdown % 60),
-            (GetScreenWidth() / 2.0f) - 100, GetScreenHeight() * 0.5f, 60,
-            ORANGE);
-        break;
-      }
-      }
+  if (GuiButton((Rectangle){(GetScreenWidth() / 2.0f) + 50,
+                            GetScreenHeight() * 0.8, 50, 50},
+                "#133#")) {
+    P.countdown = 0;
+    if (P.pomodoro_state == POMO_LONG_REST) {
+      P.pomodoro_state = POMO_RUNNING;
     } else {
-      switch (P.pomodoro_state) {
-      case POMO_RUNNING: {
-        if (P.lapC < 3) {
-          P.lapC++;
-          P.countdown = P.smallest;
-          P.pomodoro_state = 1;
-        } else {
-          P.lapC = 0;
-          P.loopC++;
-          P.countdown = P.largest;
-          P.pomodoro_state = 2;
-        }
-        if (P.loopC >= P.laps) {
-          P.pomodoro_done = true;
-        }
-        break;
+      P.pomodoro_state++;
+    }
+    last_time = GetTime();
+  }
+
+  if (P.is_paused) {
+    strcpy(icon, PAUSE_ICON);
+  } else {
+    strcpy(icon, PLAY_ICON);
+  }
+
+  if (P.countdown < 0) {
+    switch (P.pomodoro_state) {
+    case POMO_RUNNING: {
+      if (P.lapC < 3) {
+        P.lapC++;
+        P.countdown = P.smallest;
+        P.pomodoro_state = 1;
+      } else {
+        P.lapC = 0;
+        P.loopC++;
+        P.countdown = P.largest;
+        P.pomodoro_state = 2;
       }
-      case POMO_SHORT_REST: {
-        P.countdown = P.peice;
-        P.pomodoro_state = 0;
-        break;
+      if (P.loopC >= P.laps) {
+        P.pomodoro_done = true;
       }
-      case POMO_LONG_REST: {
-        P.countdown = P.peice;
-        P.pomodoro_state = 0;
-        break;
-      }
-      }
+      last_time = GetTime();
+      break;
+    }
+    case POMO_SHORT_REST: {
+      P.countdown = P.peice;
+      P.pomodoro_state = 0;
+      last_time = GetTime();
+      break;
+    }
+    case POMO_LONG_REST: {
+      P.countdown = P.peice;
+      P.pomodoro_state = 0;
+      last_time = GetTime();
+      break;
+    }
+    } // end switch
+  }
+
+  if (!P.is_paused) {
+    switch (P.pomodoro_state) {
+    case POMO_RUNNING: {
+      DrawText(
+          TextFormat("Lap %i/%i, Peice %i/4", P.loopC + 1, P.laps, P.lapC + 1),
+          (GetScreenWidth() / 2.0f) - 150, GetScreenHeight() * 0.3f, 30, RED);
+      DrawText(
+          TextFormat("%02d:%02d left...", P.countdown / 60, P.countdown % 60),
+          (GetScreenWidth() / 2.0f) - 100, GetScreenHeight() * 0.5f, 60,
+          ORANGE);
+      break;
+    }
+    case POMO_SHORT_REST: {
+      DrawText("Start small rest...", (GetScreenWidth() / 2.0f) - 50,
+               GetScreenHeight() * 0.3f, 30, RED);
+      DrawText(
+          TextFormat("%02d:%02d left...", P.countdown / 60, P.countdown % 60),
+          (GetScreenWidth() / 2.0f) - 100, GetScreenHeight() * 0.5f, 60,
+          ORANGE);
+      break;
+    }
+    case POMO_LONG_REST: {
+      DrawText("Start long rest...", (GetScreenWidth() / 2.0f) - 50,
+               GetScreenHeight() * 0.3f, 30, RED);
+      DrawText(
+          TextFormat("%02d:%02d left...", P.countdown / 60, P.countdown % 60),
+          (GetScreenWidth() / 2.0f) - 100, GetScreenHeight() * 0.5f, 60,
+          ORANGE);
+      break;
+    }
     }
   }
   EndDrawing();
