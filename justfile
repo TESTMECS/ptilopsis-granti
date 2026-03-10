@@ -6,6 +6,7 @@ ray_gui_path := "/nix/store/jm9g8vxqxck5r85hz364i6zn2pf63vff-raygui"
 
 alias b := build
 alias c := commit
+alias r := run
 
 build:
 	gcc main.c \
@@ -17,3 +18,9 @@ build:
 commit msg:
 	git add . && git commit -m "{{msg}}"
 	
+
+run:
+	./main.out
+
+clean:
+	rm main.out
