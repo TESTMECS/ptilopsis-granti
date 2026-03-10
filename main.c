@@ -39,6 +39,10 @@
 #define INPUT_BORDER_WIDTH 2
 #define INPUT_TEXT_PADDING 5
 //! @end
+//! @section Pomo_Styles
+#define PSTYLES_TEXT_COLOR RED
+#define PSTYLES_TIMER_COLOR ORANGE
+//! @end
 
 //! @enum ScreenState
 typedef enum {
@@ -274,7 +278,7 @@ void get_user_input() {
     case INPUT_LAP: {
       P.laps = atoi(P.input);
       P.input_step++;
-      P.prompt = "Pomodoro duration (minutes or mm:ss)";
+      P.prompt = "Pomodoro duration in minutes between 0 and 60. (ex: \"25\") ";
       P.input[0] = '\0';
       break;
     }
@@ -282,7 +286,7 @@ void get_user_input() {
       peice_time = make_it_int(P.input);
       P.peice = make_it_seconds(peice_time);
       P.input_step++;
-      P.prompt = "Short break (minutes or mm:ss)";
+      P.prompt = "Short break in minutes between 0 and 60 (ex: \"5\") ";
       P.input[0] = '\0';
       break;
     }
@@ -290,7 +294,7 @@ void get_user_input() {
       smallest_time = make_it_int(P.input);
       P.smallest = make_it_seconds(smallest_time);
       P.input_step++;
-      P.prompt = "Long break (minutes or mm:ss)";
+      P.prompt = "Long break in minutes between 0 and 60 (ex: \"15\") ";
       P.input[0] = '\0';
       break;
     }
@@ -411,34 +415,36 @@ void pomodoro() {
   } // end if
 
   //! Draw the pomodoro
+  //! @see Pomo_Styles
   if (!P.is_paused) {
     switch (P.pomodoro_state) {
     case POMO_RUNNING: {
       DrawText(
           TextFormat("Lap %i/%i, Peice %i/4", P.loopC + 1, P.laps, P.lapC + 1),
-          (GetScreenWidth() / 2.0f) - 150, GetScreenHeight() * 0.3f, 30, RED);
+          (GetScreenWidth() / 2.0f) - 150, GetScreenHeight() * 0.3f, 30,
+          PSTYLES_TEXT_COLOR);
       DrawText(
           TextFormat("%02d:%02d left...", P.countdown / 60, P.countdown % 60),
           (GetScreenWidth() / 2.0f) - 100, GetScreenHeight() * 0.5f, 60,
-          ORANGE);
+          PSTYLES_TIMER_COLOR);
       break;
     }
     case POMO_SHORT_REST: {
       DrawText("Start small rest...", (GetScreenWidth() / 2.0f) - 50,
-               GetScreenHeight() * 0.3f, 30, RED);
+               GetScreenHeight() * 0.3f, 30, PSTYLES_TEXT_COLOR);
       DrawText(
           TextFormat("%02d:%02d left...", P.countdown / 60, P.countdown % 60),
           (GetScreenWidth() / 2.0f) - 100, GetScreenHeight() * 0.5f, 60,
-          ORANGE);
+          PSTYLES_TIMER_COLOR);
       break;
     }
     case POMO_LONG_REST: {
       DrawText("Start long rest...", (GetScreenWidth() / 2.0f) - 50,
-               GetScreenHeight() * 0.3f, 30, RED);
+               GetScreenHeight() * 0.3f, 30, PSTYLES_TEXT_COLOR);
       DrawText(
           TextFormat("%02d:%02d left...", P.countdown / 60, P.countdown % 60),
           (GetScreenWidth() / 2.0f) - 100, GetScreenHeight() * 0.5f, 60,
-          ORANGE);
+          PSTYLES_TIMER_COLOR);
       break;
     }
     } // end switch
