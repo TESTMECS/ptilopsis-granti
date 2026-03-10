@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+//! @constant VERSION
+#define VERSION "0.1.0"
 //! @constant SCREEN_WIDTH
 //! 	Screen width
 #define SCREEN_WIDTH 1280
@@ -173,8 +175,29 @@ void initalize_pomodoro(Pomodoro *p) {
   p->prompt = "How Many Laps?";
 }
 
-int main(void) {
+void print_help() {
+  printf("Options:\n");
+  printf("  -h, --help\t\tShow this help message and exit\n");
+  printf("  -v, --version\t\tShow version information and exit\n");
+  printf("  -l <laps>\t\tNumber of laps\n");
+  printf("  -p <peice>\t\tPeice duration\n");
+  printf("  -s <smallest>\t\tShortest break duration\n");
+  printf("  -l <largest>\t\tLongest break duration\n");
+  exit(EXIT_SUCCESS);
+}
+
+int main(int argc, char **argv) {
   initalize_pomodoro(&P);
+  if (argc > 1 &&
+      (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)) {
+    print_help();
+  }
+  if (argc > 1 &&
+      (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0)) {
+    printf("Pomodoro Timer\n");
+    printf("Version: %s\n", VERSION);
+    exit(EXIT_SUCCESS);
+  }
 
   //! Initalize the raylib instance
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -186,7 +209,10 @@ int main(void) {
   while (!WindowShouldClose()) {
     switch (P.state) {
     case SCREEN_USER_INPUT: {
-      get_user_input();
+      //! If no cli args then prompt for input.
+      if (!P.input_done) {
+        get_user_input();
+      }
       if (P.input_done) {
         P.state = SCREEN_POMODORO;
       }
