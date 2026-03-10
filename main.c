@@ -179,11 +179,7 @@ void print_help() {
   printf("Options:\n");
   printf("  -h, --help\t\tShow this help message and exit\n");
   printf("  -v, --version\t\tShow version information and exit\n");
-  printf("  -l <laps>\t\tNumber of laps\n");
-  printf("  -p <peice>\t\tPeice duration\n");
-  printf("  -s <smallest>\t\tShortest break duration\n");
-  printf("  -l <largest>\t\tLongest break duration\n");
-  exit(EXIT_SUCCESS);
+  printf("Usage: ptilo -s \"laps:peice:smallest:largest\"\n");
 }
 
 int main(int argc, char **argv) {
@@ -191,12 +187,85 @@ int main(int argc, char **argv) {
   if (argc > 1 &&
       (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)) {
     print_help();
+    exit(EXIT_SUCCESS);
   }
   if (argc > 1 &&
       (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0)) {
     printf("Pomodoro Timer\n");
     printf("Version: %s\n", VERSION);
     exit(EXIT_SUCCESS);
+  }
+  //! Handle -s and -t args.
+  //! @example
+  //! ptilo -s "5:25:5:15"
+  //! ptilo -t "Dark" (TODO)
+  if (argc > 1) {
+    int a;
+    char *theme = NULL;
+    for (int i = 1; i < argc; i++) {
+      if (strcmp(argv[i], "-s") == 0 && i + 1 < argc) {
+        char *copy = strdup(argv[++i]);
+        char *tok = strtok(copy, ":");
+        //! Get laps
+        if (tok)
+          a = atoi(tok);
+        if (a < 0 || a > 10) {
+          printf("Laps must be between 0 and 10. Try again:\n");
+          print_help();
+          exit(EXIT_FAILURE);
+        } else {
+          //! Set laps
+          P.laps = a;
+        }
+        //! Get peice time
+        tok = strtok(NULL, ":");
+        if (!tok)
+          goto bad_input;
+        int *temp_time = make_it_int(tok);
+        int temp_seconds = make_it_seconds(temp_time);
+        if (temp_seconds < 0 || temp_seconds > 3600) {
+          printf("Duration must be between 0 and 60 minutes. Try again:\n");
+          print_help();
+          exit(EXIT_FAILURE);
+        }
+        //! Set peice time
+        P.peice = temp_seconds;
+        //! Get smallest time
+        tok = strtok(NULL, ":");
+        if (!tok)
+          goto bad_input;
+        int *temp_time_short = make_it_int(tok);
+        int temp_seconds_short = make_it_seconds(temp_time_short);
+        if (temp_seconds_short < 0 || temp_seconds_short > 3600) {
+          printf("Duration must be between 0 and 60 minutes. Try again:\n");
+          print_help();
+          exit(EXIT_FAILURE);
+        }
+        //! Set smallest time
+        P.smallest = temp_seconds_short;
+        tok = strtok(NULL, ":");
+        //! Get largest time
+        if (!tok)
+          goto bad_input;
+        int *temp_time_long = make_it_int(tok);
+        int temp_seconds_long = make_it_seconds(temp_time_long);
+        if (temp_seconds_long < 0 || temp_seconds_long > 3600) {
+          printf("Duration must be between 0 and 60 minutes. Try again:\n");
+          print_help();
+          exit(EXIT_FAILURE);
+        }
+        //! Set largest time
+        P.largest = temp_seconds_long;
+        //! Set input done.
+        P.input_done = true;
+        free(temp_time_long);
+        free(temp_time_short);
+        free(temp_time);
+        free(copy);
+      } else if (strcmp(argv[i], "-t") == 0 && i + 1 < argc) {
+        theme = argv[++i];
+      }
+    }
   }
 
   //! Initalize the raylib instance
@@ -238,6 +307,11 @@ int main(int argc, char **argv) {
   //! Cleanup
   CloseWindow();
   return 0;
+
+bad_input:
+  printf("Bad input. Try again:\n");
+  print_help();
+  exit(EXIT_FAILURE);
 }
 
 //! @function make_it_int

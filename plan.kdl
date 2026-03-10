@@ -11,6 +11,8 @@ Task-List """
 	+ Test with other timing inputs
 	- Allow bypassing of input section with CLI args.
 	- Add in Themes using -D... flags for different colors.
+ptilo -s "5:25:5:15"
+ptilo -t "Dark"
 """
 
 
