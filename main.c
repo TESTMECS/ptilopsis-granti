@@ -170,7 +170,6 @@ void initalize_pomodoro(Pomodoro *p) {
 }
 
 int main(void) {
-  //! Initalize the pomodoro timer
   initalize_pomodoro(&P);
 
   //! Initalize the raylib instance
@@ -312,14 +311,16 @@ void get_user_input() {
 void pomodoro() {
   static char icon[16] = PLAY_ICON;
   static double last_time = 0;
+
   //! Initialize the raygui
+  //! [raylib.h] GetTime() : Get elapsed time in seconds since InitWindow()
   if (P.loopC == 0 && P.lapC == 0 && P.countdown == 0) {
     P.countdown = P.peice;
     last_time = GetTime();
   }
-
+  //! Begin Countdown
   double current_time = GetTime();
-  if (current_time - last_time >= 1.0) {
+  if (!P.is_paused && current_time - last_time >= 1.0) {
     P.countdown--;
     last_time = current_time;
   }
@@ -328,28 +329,53 @@ void pomodoro() {
   ClearBackground(BLACK);
   GuiGetStyle(DEFAULT, BACKGROUND_COLOR);
 
+  //! @define Pause Button
   GuiToggle((Rectangle){(GetScreenWidth() / 2.0f) - 25, GetScreenHeight() * 0.8,
                         50, 50},
             icon, &P.is_paused);
 
+  //! @define Skip Button
   if (GuiButton((Rectangle){(GetScreenWidth() / 2.0f) + 50,
                             GetScreenHeight() * 0.8, 50, 50},
                 "#133#")) {
-    P.countdown = 0;
-    if (P.pomodoro_state == POMO_LONG_REST) {
-      P.pomodoro_state = POMO_RUNNING;
-    } else {
-      P.pomodoro_state++;
+    switch (P.pomodoro_state) {
+    case POMO_RUNNING: {
+      if (P.lapC < 3) { //! Increment laps
+        P.lapC++;
+        P.countdown = P.smallest;
+        P.pomodoro_state = POMO_SHORT_REST;
+      } else { //! Increment loops
+        P.lapC = 0;
+        P.loopC++;
+        P.countdown = P.largest;
+        P.pomodoro_state = POMO_LONG_REST;
+      }
+      //! Check if loops are done
+      if (P.loopC >= P.laps) {
+        P.pomodoro_done = true;
+      }
+      break;
     }
+    case POMO_SHORT_REST:
+    case POMO_LONG_REST: {
+      //! Reset countdown
+      P.countdown = P.peice;
+      P.pomodoro_state = POMO_RUNNING;
+      break;
+    }
+    } // end switch
     last_time = GetTime();
-  }
+  } // end if
 
+  //! Check if pomodoro is paused
   if (P.is_paused) {
     strcpy(icon, PAUSE_ICON);
+    last_time = GetTime(); //! Reset last time
   } else {
     strcpy(icon, PLAY_ICON);
   }
 
+  //! Check if countdown is done
   if (P.countdown < 0) {
     switch (P.pomodoro_state) {
     case POMO_RUNNING: {
@@ -382,8 +408,9 @@ void pomodoro() {
       break;
     }
     } // end switch
-  }
+  } // end if
 
+  //! Draw the pomodoro
   if (!P.is_paused) {
     switch (P.pomodoro_state) {
     case POMO_RUNNING: {
@@ -414,7 +441,7 @@ void pomodoro() {
           ORANGE);
       break;
     }
-    }
-  }
+    } // end switch
+  } // end if
   EndDrawing();
 }
