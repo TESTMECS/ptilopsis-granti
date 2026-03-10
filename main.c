@@ -316,16 +316,12 @@ bad_input:
 
 //! @function make_it_int
 int *make_it_int(char input[]) {
-  int *buffer = (int *)malloc(3 * sizeof(int));
-  char *copy = strdup(input);
-  char *token = strtok(copy, ":");
-  int i = 0;
-  while (token != NULL && i < 3) {
-    buffer[i] = atoi(token);
-    token = strtok(NULL, ":");
-    i++;
-  }
-  free(copy);
+  int *buffer = (int *)calloc(3, sizeof(int));
+  int h = 0, m = 0, s = 0;
+  sscanf(input, "%d:%d:%d", &h, &m, &s);
+  buffer[0] = h;
+  buffer[1] = m;
+  buffer[2] = s;
   return buffer;
 }
 
