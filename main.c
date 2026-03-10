@@ -264,9 +264,9 @@ void get_user_input() {
   GuiSetStyle(TEXTBOX, BORDER_WIDTH, INPUT_BORDER_WIDTH);
   GuiSetStyle(TEXTBOX, TEXT_PADDING, INPUT_TEXT_PADDING);
 
-  //! Draw the rectangle
+  //! Draw the rectangle for the input box
   Rectangle bounds = {(GetScreenWidth() / 2.0f) - (400 / 2),
-                      GetScreenHeight() * 0.4f, 400, 300};
+                      GetScreenHeight() * 0.4f, 700, 300};
 
   //! Draw the input box
   int result = GuiTextInputBox(bounds, "Input", P.prompt, "Ok;Cancel", P.input,
@@ -276,35 +276,66 @@ void get_user_input() {
     //! Get the input
     switch (P.input_step) {
     case INPUT_LAP: {
-      P.laps = atoi(P.input);
-      P.input_step++;
-      P.prompt = "Pomodoro duration in minutes between 0 and 60. (ex: \"25\") ";
-      P.input[0] = '\0';
+      int laps_val = atoi(P.input);
+      if (laps_val < 0 || laps_val > 10) {
+        P.prompt = "Laps must be between 0 and 10. Try again:";
+        P.input[0] = '\0';
+      } else {
+        P.laps = laps_val;
+        P.input_step++;
+        P.prompt =
+            "Pomodoro duration in minutes between 0 and 60. (ex: \"25\") ";
+        P.input[0] = '\0';
+      }
       break;
     }
     case INPUT_PEICE: {
-      peice_time = make_it_int(P.input);
-      P.peice = make_it_seconds(peice_time);
-      P.input_step++;
-      P.prompt = "Short break in minutes between 0 and 60 (ex: \"5\") ";
-      P.input[0] = '\0';
+      int *temp_time = make_it_int(P.input);
+      int temp_seconds = make_it_seconds(temp_time);
+      if (temp_seconds < 0 || temp_seconds > 3600) {
+        P.prompt = "Duration must be between 0 and 60 minutes. Try again:";
+        P.input[0] = '\0';
+        free(temp_time);
+      } else {
+        peice_time = temp_time;
+        P.peice = temp_seconds;
+        P.input_step++;
+        P.prompt = "Short break in minutes between 0 and 60 (ex: \"5\") ";
+        P.input[0] = '\0';
+      }
       break;
     }
     case INPUT_SMALLEST: {
-      smallest_time = make_it_int(P.input);
-      P.smallest = make_it_seconds(smallest_time);
-      P.input_step++;
-      P.prompt = "Long break in minutes between 0 and 60 (ex: \"15\") ";
-      P.input[0] = '\0';
+      int *temp_time = make_it_int(P.input);
+      int temp_seconds = make_it_seconds(temp_time);
+      if (temp_seconds < 0 || temp_seconds > 3600) {
+        P.prompt = "Duration must be between 0 and 60 minutes. Try again:";
+        P.input[0] = '\0';
+        free(temp_time);
+      } else {
+        smallest_time = temp_time;
+        P.smallest = temp_seconds;
+        P.input_step++;
+        P.prompt = "Long break in minutes between 0 and 60 (ex: \"15\") ";
+        P.input[0] = '\0';
+      }
       break;
     }
     case INPUT_LARGEST: {
-      biggest_time = make_it_int(P.input);
-      P.largest = make_it_seconds(biggest_time);
-      P.input_done = true;
-      free(peice_time);
-      free(smallest_time);
-      free(biggest_time);
+      int *temp_time = make_it_int(P.input);
+      int temp_seconds = make_it_seconds(temp_time);
+      if (temp_seconds < 0 || temp_seconds > 3600) {
+        P.prompt = "Duration must be between 0 and 60 minutes. Try again:";
+        P.input[0] = '\0';
+        free(temp_time);
+      } else {
+        biggest_time = temp_time;
+        P.largest = temp_seconds;
+        P.input_done = true;
+        free(peice_time);
+        free(smallest_time);
+        free(biggest_time);
+      }
       break;
     }
     }

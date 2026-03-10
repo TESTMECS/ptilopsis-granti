@@ -8,7 +8,7 @@ Key """
 """ 
 Date "2026-03-10"
 Task-List """
-	- Test with other timing inputs
+	+ Test with other timing inputs
 	- Allow bypassing of input section with CLI args.
 	- Add in Themes using -D... flags for different colors.
 """

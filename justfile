@@ -16,7 +16,7 @@ build:
 		-o main.out
 
 commit msg:
-	git add . && git commit -m "{{msg}}"
+	git add . && git commit -m "{{msg}}" && git push
 	
 
 run:
