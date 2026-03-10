@@ -1,80 +1,202 @@
+//! @file main.c
+//! @brief Pomodoro Timer
+//! @constant RAYGUI_IMPLEMENTATION
+//! 	For raygui.h
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include "raylib.h"
 #include <stdlib.h>
 #include <string.h>
 
+//! @constant SCREEN_WIDTH
+//! 	Screen width
 #define SCREEN_WIDTH 1280
+//! @constant SCREEN_HEIGHT
+//! 	Screen height
 #define SCREEN_HEIGHT 960
+//! @constant MAX_INPUT_CHARS
+//! 	Max input chars
 #define MAX_INPUT_CHARS 256
 
+//! @section Main_Screen_Styles
+#define MAIN_BG_COLOR 0x000033
+#define MAIN_TEXT_SIZE 20
+#define MAIN_TEXT_COLOR 0xCC66FFFF
+#define MAIN_BORDER_COLOR 0x996633FF
+#define PAUSE_ICON "#131#"
+#define PLAY_ICON "#132#"
+//! @end
+//! @section Input_Screen_Styles
+#define INPUT_BG_COLOR 0x1A1A1AFF
+#define INPUT_TEXT_SIZE 20
+#define INPUT_TEXT_COLOR 0xFFFFFFFF
+#define INPUT_BORDER_COLOR 0x996633FF
+#define INPUT_BASE_COLOR 0x1A1A1AFF
+#define INPUT_TEXT_COLOR 0xFFFFFFFF
+#define INPUT_BORDER_COLOR_FOCUSED 0x6B83FFFF
+#define INPUT_BASE_COLOR_FOCUSED 0x2A2A2AFF
+#define INPUT_TEXT_COLOR_FOCUSED 0xFFFFFFFF
+#define INPUT_BORDER_WIDTH 2
+#define INPUT_TEXT_PADDING 5
+//! @end
+
+//! @enum ScreenState
+typedef enum {
+  //! @member USER_INPUT
+  //! 	Entering the time constraints.
+  SCREEN_USER_INPUT = 0,
+  //! @member POMODORO
+  //! Displaying the pomodoro timer.
+  SCREEN_POMODORO = 1,
+  //! @member END
+  //! Ending screen.
+  SCREEN_END = 2,
+} ScreenState;
+
+//! @enum PomodoroState
+typedef enum {
+  //! @member POMO_RUNNING
+  //! 	Pomodoro is paused.
+  POMO_RUNNING = 0,
+  //! @member POMO_SHORT_REST
+  //! 	Pomodoro is running.
+  POMO_SHORT_REST = 1,
+  //! @member POMO_LONG_REST
+  //! 	Pomodoro is finished.
+  POMO_LONG_REST = 2,
+} PomodoroState;
+
+//! @enum
+typedef enum {
+  //! @member LAP
+  //! 	User input for laps.
+  INPUT_LAP = 0,
+  //! @member PEICE
+  //! 	User input for peice.
+  INPUT_PEICE = 1,
+  //! @member SMALLEST
+  //! 	User input for smallest break.
+  INPUT_SMALLEST = 2,
+  //! @member LARGEST
+  //! 	User input for largest break.
+  INPUT_LARGEST = 3,
+} InputState;
+
+//! @struct Pomodoro
 typedef struct {
+  //! @member laps
+  //! 	Number of laps(loops)
   int laps;
+  //! @member peice
+  //! 	Peice duration
   int peice;
+  //! @member smallest
+  //! 	Shortest break duration
   uint smallest;
+  //! @member largest
+  //! 	Longest break duration
   uint largest;
-  int state;
-  int input_step;
-  int pomodoro_state;
+  //! @member state
+  //! 	State of the program
+  ScreenState state;
+  //! @member input_step
+  //! 	Step of the input
+  InputState input_step;
+  //! @member pomodoro_state
+  //! 	State of the pomodoro
+  PomodoroState pomodoro_state;
+  //! @member loopC
+  //! 	Current loop
   int loopC;
+  //! @member lapC
+  //! 	Current lap
   int lapC;
+  //! @member countdown
+  //! 	Countdown
   int countdown;
+  //! @member is_paused
+  //! 	Is the pomodoro paused
   bool is_paused;
+  //! @member input_done
+  //! 	Is the input done
   bool input_done;
+  //! @member pomodoro_done
+  //! 	Is the pomodoro done
   bool pomodoro_done;
+  //! @member input
+  //! 	Input
   char input[MAX_INPUT_CHARS];
+  //! @member prompt
+  //! 	Prompt
   const char *prompt;
 } Pomodoro;
 
+//! @struct Button
+//! 	Pause Pomodoro timer.
 typedef struct {
+  //! @member rect
+  //! 	Rectangle from raylib
   Rectangle rect;
+  //! @member state
+  //! 	State of the button
   bool state;
 } Button;
 
+//! @variable P
+//! 	Pomodoro timer
 Pomodoro P;
 
+//! @variable FINISH
+//! 	Is the program finished
 bool FINISH = false;
 
+// forward declaration
 int *make_it_int(char input[]);
 int make_it_seconds(int input[]);
-// state
 void get_user_input();
 void pomodoro();
 
-int main(void) {
-  P.state = 0;
-  P.input_step = 0;
-  P.input_done = false;
-  P.pomodoro_done = false;
-  P.pomodoro_state = 0;
-  P.loopC = 0;
-  P.lapC = 0;
-  P.is_paused = false;
+void initalize_pomodoro(Pomodoro *p) {
+  p->state = 0;
+  p->input_step = 0;
+  p->input_done = false;
+  p->pomodoro_done = false;
+  p->pomodoro_state = 0;
+  p->loopC = 0;
+  p->lapC = 0;
+  p->is_paused = false;
   strcpy(P.input, "");
-  P.prompt = "How Many Laps?";
+  p->prompt = "How Many Laps?";
+}
 
+int main(void) {
+  //! Initalize the pomodoro timer
+  initalize_pomodoro(&P);
+
+  //! Initalize the raylib instance
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pomodoro Timer");
   SetWindowMinSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   SetTargetFPS(60);
 
+  //! Main loop
   while (!WindowShouldClose()) {
     switch (P.state) {
-    case 0: {
+    case SCREEN_USER_INPUT: {
       get_user_input();
       if (P.input_done) {
-        P.state = 1;
+        P.state = SCREEN_POMODORO;
       }
       break;
     }
-    case 1: {
+    case SCREEN_POMODORO: {
       pomodoro();
       if (P.pomodoro_done) {
-        P.state = 2;
+        P.state = SCREEN_END;
       }
       break;
     }
-    case 2: {
+    case SCREEN_END: {
       BeginDrawing();
       ClearBackground(BLACK);
       DrawText("Congrats", (GetScreenWidth() / 1.5f) - 10,
@@ -84,10 +206,12 @@ int main(void) {
     }
     }
   }
+  //! Cleanup
   CloseWindow();
   return 0;
 }
 
+//! @function make_it_int
 int *make_it_int(char input[]) {
   int *buffer = (int *)malloc(3 * sizeof(int));
   char *copy = strdup(input);
@@ -102,6 +226,7 @@ int *make_it_int(char input[]) {
   return buffer;
 }
 
+//! @function make_it_seconds
 int make_it_seconds(int input[]) {
   int h = input[0];
   int m = input[1];
@@ -116,39 +241,45 @@ void get_user_input() {
   static int *peice_time = NULL;
   static int *smallest_time = NULL;
   static int *biggest_time = NULL;
-
+  //! Initialize the raygui
   BeginDrawing();
   ClearBackground(BLACK);
-  GuiSetStyle(DEFAULT, BACKGROUND_COLOR, 0x000033);
-  GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
-  GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xCC66FFFF);
-  GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, 0x996633FF);
 
-  GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, 0x996633FF);
-  GuiSetStyle(TEXTBOX, BASE_COLOR_NORMAL, 0x1A1A1AFF);
-  GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, 0xFFFFFFFF);
-  GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, 0x6B83FFFF);
-  GuiSetStyle(TEXTBOX, BASE_COLOR_FOCUSED, 0x2A2A2AFF);
-  GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, 0xFFFFFFFF);
-  GuiSetStyle(TEXTBOX, BORDER_WIDTH, 2);
-  GuiSetStyle(TEXTBOX, TEXT_PADDING, 5);
+  //! @see Main_Screen_Styles
+  GuiSetStyle(DEFAULT, BACKGROUND_COLOR, MAIN_BG_COLOR);
+  GuiSetStyle(DEFAULT, TEXT_SIZE, MAIN_TEXT_SIZE);
+  GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, MAIN_TEXT_COLOR);
+  GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, MAIN_BORDER_COLOR);
 
+  //! @see Input_Screen_Styles
+  GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, INPUT_BORDER_COLOR);
+  GuiSetStyle(TEXTBOX, BASE_COLOR_NORMAL, INPUT_BASE_COLOR);
+  GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, INPUT_TEXT_COLOR);
+  GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, INPUT_BORDER_COLOR_FOCUSED);
+  GuiSetStyle(TEXTBOX, BASE_COLOR_FOCUSED, INPUT_BASE_COLOR_FOCUSED);
+  GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, INPUT_TEXT_COLOR_FOCUSED);
+  GuiSetStyle(TEXTBOX, BORDER_WIDTH, INPUT_BORDER_WIDTH);
+  GuiSetStyle(TEXTBOX, TEXT_PADDING, INPUT_TEXT_PADDING);
+
+  //! Draw the rectangle
   Rectangle bounds = {(GetScreenWidth() / 2.0f) - (400 / 2),
                       GetScreenHeight() * 0.4f, 400, 300};
 
+  //! Draw the input box
   int result = GuiTextInputBox(bounds, "Input", P.prompt, "Ok;Cancel", P.input,
                                255, NULL);
 
   if (result == 1) {
+    //! Get the input
     switch (P.input_step) {
-    case 0: {
+    case INPUT_LAP: {
       P.laps = atoi(P.input);
       P.input_step++;
       P.prompt = "Pomodoro duration (minutes or mm:ss)";
       P.input[0] = '\0';
       break;
     }
-    case 1: {
+    case INPUT_PEICE: {
       peice_time = make_it_int(P.input);
       P.peice = make_it_seconds(peice_time);
       P.input_step++;
@@ -156,7 +287,7 @@ void get_user_input() {
       P.input[0] = '\0';
       break;
     }
-    case 2: {
+    case INPUT_SMALLEST: {
       smallest_time = make_it_int(P.input);
       P.smallest = make_it_seconds(smallest_time);
       P.input_step++;
@@ -164,7 +295,7 @@ void get_user_input() {
       P.input[0] = '\0';
       break;
     }
-    case 3: {
+    case INPUT_LARGEST: {
       biggest_time = make_it_int(P.input);
       P.largest = make_it_seconds(biggest_time);
       P.input_done = true;
@@ -202,13 +333,12 @@ void pomodoro() {
             icon, &P.is_paused);
 
   if (P.is_paused) {
-    strcpy(icon, "#131#");
+    strcpy(icon, PAUSE_ICON); //! @see Pause_Icon
   } else {
-    strcpy(icon, "#132#");
-
+    strcpy(icon, PLAY_ICON); //! @see Play_Icon
     if (P.countdown >= 0) {
       switch (P.pomodoro_state) {
-      case 0: {
+      case POMO_RUNNING: {
         DrawText(TextFormat("Lap %i/%i, Peice %i/4", P.loopC + 1, P.laps,
                             P.lapC + 1),
                  (GetScreenWidth() / 2.0f) - 150, GetScreenHeight() * 0.3f, 30,
@@ -219,7 +349,7 @@ void pomodoro() {
             ORANGE);
         break;
       }
-      case 1: {
+      case POMO_SHORT_REST: {
         DrawText("Start small rest...", (GetScreenWidth() / 2.0f) - 50,
                  GetScreenHeight() * 0.3f, 30, RED);
         DrawText(
@@ -228,7 +358,7 @@ void pomodoro() {
             ORANGE);
         break;
       }
-      case 2: {
+      case POMO_LONG_REST: {
         DrawText("Start long rest...", (GetScreenWidth() / 2.0f) - 50,
                  GetScreenHeight() * 0.3f, 30, RED);
         DrawText(
@@ -240,7 +370,7 @@ void pomodoro() {
       }
     } else {
       switch (P.pomodoro_state) {
-      case 0: {
+      case POMO_RUNNING: {
         if (P.lapC < 3) {
           P.lapC++;
           P.countdown = P.smallest;
@@ -256,12 +386,12 @@ void pomodoro() {
         }
         break;
       }
-      case 1: {
+      case POMO_SHORT_REST: {
         P.countdown = P.peice;
         P.pomodoro_state = 0;
         break;
       }
-      case 2: {
+      case POMO_LONG_REST: {
         P.countdown = P.peice;
         P.pomodoro_state = 0;
         break;
