@@ -21,29 +21,63 @@
 #define MAX_INPUT_CHARS 256
 
 //! @section Main_Screen_Styles
+#ifndef BG_COLOR
+#define BG_COLOR BLACK
+#endif
+#ifndef MAIN_BG_COLOR
 #define MAIN_BG_COLOR 0x000033
+#endif
+#ifndef MAIN_TEXT_SIZE
 #define MAIN_TEXT_SIZE 20
+#endif
+#ifndef MAIN_TEXT_COLOR
 #define MAIN_TEXT_COLOR 0xCC66FFFF
+#endif
+#ifndef MAIN_BORDER_COLOR
 #define MAIN_BORDER_COLOR 0x996633FF
+#endif
 #define PAUSE_ICON "#131#"
 #define PLAY_ICON "#132#"
 //! @end
 //! @section Input_Screen_Styles
+#ifndef INPUT_BG_COLOR
 #define INPUT_BG_COLOR 0x1A1A1AFF
+#endif
+#ifndef INPUT_TEXT_SIZE
 #define INPUT_TEXT_SIZE 20
+#endif
+#ifndef INPUT_TEXT_COLOR
 #define INPUT_TEXT_COLOR 0xFFFFFFFF
+#endif
+#ifndef INPUT_BORDER_COLOR
 #define INPUT_BORDER_COLOR 0x996633FF
+#endif
+#ifndef INPUT_BASE_COLOR
 #define INPUT_BASE_COLOR 0x1A1A1AFF
-#define INPUT_TEXT_COLOR 0xFFFFFFFF
+#endif
+#ifndef INPUT_BORDER_COLOR_FOCUSED
 #define INPUT_BORDER_COLOR_FOCUSED 0x6B83FFFF
+#endif
+#ifndef INPUT_BASE_COLOR_FOCUSED
 #define INPUT_BASE_COLOR_FOCUSED 0x2A2A2AFF
+#endif
+#ifndef INPUT_TEXT_COLOR_FOCUSED
 #define INPUT_TEXT_COLOR_FOCUSED 0xFFFFFFFF
+#endif
+#ifndef INPUT_BORDER_WIDTH
 #define INPUT_BORDER_WIDTH 2
+#endif
+#ifndef INPUT_TEXT_PADDING
 #define INPUT_TEXT_PADDING 5
+#endif
 //! @end
 //! @section Pomo_Styles
+#ifndef PSTYLES_TEXT_COLOR
 #define PSTYLES_TEXT_COLOR RED
+#endif
+#ifndef PSTYLES_TIMER_COLOR
 #define PSTYLES_TIMER_COLOR ORANGE
+#endif
 //! @end
 
 //! @enum ScreenState
@@ -294,7 +328,7 @@ int main(int argc, char **argv) {
     }
     case SCREEN_END: {
       BeginDrawing();
-      ClearBackground(BLACK);
+      ClearBackground(BG_COLOR);
       DrawText("Congrats", (GetScreenWidth() / 1.5f) - 10,
                GetScreenHeight() * 0.8f, 50, RED);
       EndDrawing();
@@ -340,7 +374,7 @@ void get_user_input() {
   static int *biggest_time = NULL;
   //! Initialize the raygui
   BeginDrawing();
-  ClearBackground(BLACK);
+  ClearBackground(BG_COLOR);
 
   //! @see Main_Screen_Styles
   GuiSetStyle(DEFAULT, BACKGROUND_COLOR, MAIN_BG_COLOR);
@@ -455,7 +489,7 @@ void pomodoro() {
   }
 
   BeginDrawing();
-  ClearBackground(BLACK);
+  ClearBackground(BG_COLOR);
   GuiGetStyle(DEFAULT, BACKGROUND_COLOR);
 
   //! @define Pause Button
