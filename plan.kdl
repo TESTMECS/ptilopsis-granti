@@ -9,10 +9,10 @@ Key """
 Date "2026-03-10"
 Task-List """
 	+ Test with other timing inputs
-	- Allow bypassing of input section with CLI args.
-	- Add in Themes using -D... flags for different colors.
-ptilo -s "5:25:5:15"
-ptilo -t "Dark"
+	+ Allow bypassing of input section with CLI args.
+			ptilo -s "5:25:5:15"
+			ptilo -t "Dark"
+	- Add in Themes using -D... flags or -t for different colors.
 """
 
 

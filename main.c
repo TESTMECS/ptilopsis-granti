@@ -262,8 +262,6 @@ int main(int argc, char **argv) {
         free(temp_time_short);
         free(temp_time);
         free(copy);
-      } else if (strcmp(argv[i], "-t") == 0 && i + 1 < argc) {
-        theme = argv[++i];
       }
     }
   }
