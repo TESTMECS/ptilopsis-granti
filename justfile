@@ -13,7 +13,7 @@ build:
 		-I {{ray_lib_path}}/include \
 		-L {{ray_lib_path}}/lib \
 		-lraylib -lm -lpthread -ldl -lrt \
-		-o main.out
+		-o ptilo 
 
 build-default:
 	gcc main.c \

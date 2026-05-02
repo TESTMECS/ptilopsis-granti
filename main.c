@@ -19,6 +19,9 @@
 //! @constant MAX_INPUT_CHARS
 //! 	Max input chars
 #define MAX_INPUT_CHARS 256
+//! @constant AUDIO_SOUND_FILE_NAME
+//! 	Name of the Audio that plays between pomos.
+#define AUDIO_SOUND_FILE_NAME "notify.wav"
 
 //! @section Main_Screen_Styles
 #ifndef BG_COLOR
@@ -305,6 +308,7 @@ int main(int argc, char **argv) {
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pomodoro Timer");
   SetWindowMinSize(SCREEN_WIDTH, SCREEN_HEIGHT);
   SetTargetFPS(60);
+  InitAudioDevice();
 
   //! Main loop
   while (!WindowShouldClose()) {
@@ -337,6 +341,7 @@ int main(int argc, char **argv) {
     }
   }
   //! Cleanup
+  CloseAudioDevice();
   CloseWindow();
   return 0;
 
@@ -488,6 +493,8 @@ void pomodoro() {
     last_time = current_time;
   }
 
+  Sound fx = LoadSound(AUDIO_SOUND_FILE_NAME);
+
   BeginDrawing();
   ClearBackground(BG_COLOR);
   GuiGetStyle(DEFAULT, BACKGROUND_COLOR);
@@ -503,6 +510,7 @@ void pomodoro() {
                 "#133#")) {
     switch (P.pomodoro_state) {
     case POMO_RUNNING: {
+      PlaySound(fx);
       if (P.lapC < 3) { //! Increment laps
         P.lapC++;
         P.countdown = P.smallest;
@@ -521,6 +529,7 @@ void pomodoro() {
     }
     case POMO_SHORT_REST:
     case POMO_LONG_REST: {
+      PlaySound(fx);
       //! Reset countdown
       P.countdown = P.peice;
       P.pomodoro_state = POMO_RUNNING;
